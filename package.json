@@ -1,7 +1,7 @@
 {
-	"name": "ghcat-reminder",
+	"name": "discord-reminder",
 	"version": "1.0.0",
-	"description": "Obsidian Google Chat Notification Plugin",
+	"description": "Obsidian Discord Notification Plugin",
 	"main": "main.js",
 	"scripts": {
 		"dev": "node esbuild.config.mjs",

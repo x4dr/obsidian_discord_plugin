@@ -1,4 +1,4 @@
-export interface GChatReminderSettings {
+export interface DiscordReminderSettings {
 	webhookUrl: string;
 }
 

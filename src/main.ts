@@ -7,14 +7,14 @@ import {
 	TFile,
 	requestUrl,
 } from "obsidian";
-import { GChatReminderSettings, Task } from "types";
+import { DiscordReminderSettings, Task } from "types";
 
-const DEFAULT_SETTINGS: GChatReminderSettings = {
+const DEFAULT_SETTINGS: DiscordReminderSettings = {
 	webhookUrl: "",
 };
 
-export default class GChatReminder extends Plugin {
-	settings: GChatReminderSettings;
+export default class DiscordReminder extends Plugin {
+	settings: DiscordReminderSettings;
 	notifiedTasks: Set<string> = new Set();
 	taskCache: Set<Task> = new Set();
 
@@ -40,6 +40,7 @@ export default class GChatReminder extends Plugin {
 
 	async initializeTaskCache() {
 		this.taskCache = new Set();
+
 		const files = this.app.vault.getMarkdownFiles();
 		for (const file of files) {
 			this.addToTaskCache(file);
@@ -52,7 +53,6 @@ export default class GChatReminder extends Plugin {
 
 	async addToTaskCache(file: TFile) {
 		if (file.extension !== "md") return;
-
 		const fileContent = await this.app.vault.read(file);
 		const tasks = this.extractTasks(fileContent);
 		tasks.forEach((task) => this.taskCache.add(task));
@@ -66,7 +66,7 @@ export default class GChatReminder extends Plugin {
 	}
 
 	extractTasks(content: string) {
-		const regex = /(.*?)(\(gChat@(\d{4}-\d{2}-\d{2} \d{2}:\d{2})\))/g;
+		const regex = /(.*?)(\(discord@(\d{4}-\d{2}-\d{2} \d{2}:\d{2})\))/g;
 		let match;
 		const tasks = [];
 
@@ -123,47 +123,41 @@ export default class GChatReminder extends Plugin {
 
 		if (!webhookUrl || webhookUrl.trim() === "") {
 			console.warn(
-				"GChat webhook URL is not set. Notification is not sent."
+				"Discord webhook URL is not set. Notification is not sent."
 			);
 			return;
 		}
 
 		const payload = {
-			thread: {
-				threadKey: `${reminderText}-${dateTime}`,
-			},
-			cardsV2: [
-				{
-					cardId: `${reminderText}-${dateTime}`,
-					card: {
-						header: {
-							title: "Obsdian",
-							subtitle: "Task is due!",
-							imageUrl:
-								"https://obsidian.md/images/2023-06-logo.png",
-							imageType: "CIRCLE",
-						},
-						sections: [
-							{
-								header: dateTime,
-								widgets: [
-									{
-										textParagraph: {
-											text: reminderText,
-										},
-									},
-								],
-							},
-						],
+				content: "",  // Primary message text or can be empty if using only embeds
+				embeds: [
+					{
+						title: "Obsidian Reminder",
+						description: "Task is due!",
+						color: 3447003,
+						thumbnail: {
+							url: "https://obsidian.md/images/2023-06-logo.png"
 					},
-				},
-			],
-		};
+					fields: [
+						{
+							name: "Due Date",
+							value: `${dateTime}`,  // Replace with actual dateTime
+					  		inline: true
+					},
+					{
+						name: "Task",
+						value: `${reminderText}`,
+						inline: false
+					}
+				  ]
+			  }
+		  ]
+	};
 
 		try {
 			const response = await requestUrl({
 				method: "POST",
-				url: `${webhookUrl}&messageReplyOption=REPLY_MESSAGE_FALLBACK_TO_NEW_THREAD`,
+				url: `${webhookUrl}`,
 				headers: {
 					"Content-Type": "application/json",
 				},
@@ -171,18 +165,18 @@ export default class GChatReminder extends Plugin {
 			});
 
 			if (response.status != 200) {
-				console.error("Error sending Google Chat Notifcation:");
+				console.error("Error sending Discord Notifcation:", response.status);
 			}
 		} catch (error) {
-			console.error("Error sending Google Chat Notifcation:", error);
+			console.error("Error sending Discord Notifcation:", error);
 		}
 	}
 }
 
 class Settingstab extends PluginSettingTab {
-	plugin: GChatReminder;
+	plugin: DiscordReminder;
 
-	constructor(app: App, plugin: GChatReminder) {
+	constructor(app: App, plugin: DiscordReminder) {
 		super(app, plugin);
 		this.plugin = plugin;
 	}

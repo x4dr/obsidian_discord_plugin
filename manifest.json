@@ -1,10 +1,10 @@
 {
-	"id": "ghcat-reminder",
-	"name": "GChat Reminder",
+	"id": "discord-reminder",
+	"name": "Discord Reminder",
 	"version": "1.0.3",
 	"minAppVersion": "0.15.0",
-	"description": "Sends notifications to Google Chat Webhook based on due dates in Obsidian tasks.",
-	"author": "Anil Erdogan",
-	"authorUrl": "https://github.com/anil-e",
+	"description": "Sends notifications to Discord Webhook based on due dates in Obsidian tasks.",
+	"author": "x4dr",
+	"authorUrl": "https://github.com/x4dr",
 	"isDesktopOnly": false
 }
